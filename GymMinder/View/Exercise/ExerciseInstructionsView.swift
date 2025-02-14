@@ -8,12 +8,12 @@
 import SwiftUI
 
 struct ExerciseInstructionsView: View {
-    @StateObject var vm = ExerciseInstructionsViewModel()
+    let instructions: [InstructionSection]
     
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                ForEach(vm.instructions, id: \.title) { section in
+                ForEach(instructions, id: \.title) { section in
                     VStack(alignment: .leading, spacing: 10) {
                         Text(section.title)
                             .font(.headline)

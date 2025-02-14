@@ -9,65 +9,67 @@ import SwiftUI
 import AVFoundation
 
 struct ExerciseView: View {
-    let exerciseName = "Push-ups"
-    let weight = "Bodyweight"
-    
-    @State private var isFavorite: Bool = false
-    @State private var showTrainingView: Bool = true
-    @StateObject private var trainingVm = ExerciseTrainingViewModel(totalSets: 3, reps: 12, defaultRestTime: 100, completedSets: 0)
+    @ObservedObject var vm: ExerciseViewModel
     
     var body: some View {
         VStack {
-            VStack(alignment: .leading) {
-                // GIF (Exercise animation)
-                GifView(gifName: "testTrainingStatic") // Replace with your GIF file name
-                    .disabled(true)
-                    .frame(width: .infinity, height: 250)
-                    .cornerRadius(12)
-                    .overlay(alignment: .topTrailing) {
-                        Button {
-                            isFavorite.toggle()
-                        } label: {
-                            Image(systemName: isFavorite ? "heart.fill" : "heart")
-                                .foregroundStyle(isFavorite ? .red : .secondary)
-                                .frame(maxWidth: 40, maxHeight: 40)
-                        }
+            // GIF (Exercise animation)
+            GifView(gifName: "testTrainingStatic") // Replace with your GIF file name
+                .disabled(true)
+                .frame(maxWidth: .infinity)
+                .aspectRatio(1.5, contentMode: .fit)
+                .overlay(alignment: .topTrailing) {
+                    Button {
+                        vm.isFavorite.toggle()
+                    } label: {
+                        Image(systemName: vm.isFavorite ? "heart.fill" : "heart")
+                            .foregroundStyle(vm.isFavorite ? .red : .secondary)
+                            .frame(maxWidth: 40, maxHeight: 40)
                     }
-                // Exercise Title
-                Text(exerciseName)
-                    .font(.title)
-                    .bold()
-                // Set Tracker
-                HStack {
-                    Text("Weight:")
-                        .font(.subheadline)
-                    Text(weight)
-                        .font(.subheadline)
+                }
+            .ignoresSafeArea()
+            ScrollView {
+                VStack(alignment: .leading) {
+                    // Exercise Title
+                    Text(vm.exercise.name)
+                        .font(.title)
                         .bold()
+                    // Set Tracker
+                    HStack {
+                        Text("Weight:")
+                            .font(.subheadline)
+                        Text(vm.exercise.weight)
+                            .font(.subheadline)
+                            .bold()
+                    }
+                    Picker("Select Window", selection: $vm.showTrainingView) {
+                        Text("Training")
+                            .tag(true)
+                        Text("Instructions")
+                            .tag(false)
+                    }
+                    .pickerStyle(.segmented)
+                    Divider()
+                    if vm.showTrainingView {
+                        ExerciseTrainingView(vm: vm)
+                        Spacer()
+                    }
+                } // VStack
+                .padding(.all)
+                if !vm.showTrainingView {
+                    ExerciseInstructionsView(instructions: vm.exercise.instructions)
+                        .shadow(color: .gray.opacity(0.14), radius: 2)
                 }
-                Picker("Select Window", selection: $showTrainingView) {
-                    Text("Training")
-                        .tag(true)
-                    Text("Instructions")
-                        .tag(false)
-                }
-                .pickerStyle(.segmented)
-                if showTrainingView {
-                    ExerciseTrainingView(vm: trainingVm)
-                    Spacer()
-                }
-            } // VStack
-            .padding(.all)
-            if !showTrainingView {
-                ExerciseInstructionsView()
-                    .shadow(color: .gray.opacity(0.14), radius: 2)
             }
         }
         .background(Color(UIColor.systemGroupedBackground).ignoresSafeArea())
+        .navigationTitle(vm.exercise.name)
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
 
 #Preview {
-    ExerciseView()
+    let exercise = Exercise(name: "Push-ups", sets: 3, reps: 12, weight: "Bodyweight", breakTime: 60, imageName: "pushups", instructions: [])
+    ExerciseView(vm: ExerciseViewModel(exercise: exercise))
 }
