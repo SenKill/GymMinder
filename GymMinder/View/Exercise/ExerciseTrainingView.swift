@@ -17,7 +17,7 @@ struct ExerciseTrainingView: View {
     }
     
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             HStack(alignment: .center) {
                 VStack(alignment: .leading) {
                     SegmentProgressView(max: vm.exercise.sets, current: $vm.completedSets)
@@ -26,7 +26,6 @@ struct ExerciseTrainingView: View {
                     Text("Sets: \(vm.completedSets) / \(vm.exercise.sets)")
                         .font(.footnote)
                 }
-                .frame(width: .infinity)
                 Spacer()
                 VStack(alignment: .trailing) {
                     Text("Reps:")
@@ -34,7 +33,6 @@ struct ExerciseTrainingView: View {
                     Text("\(vm.exercise.reps)")
                         .font(.headline)
                 }
-                .frame(width: .infinity)
             }
             .padding(.top, 4)
             HStack(alignment: .bottom) {

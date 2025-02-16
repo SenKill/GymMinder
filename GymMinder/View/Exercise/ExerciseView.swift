@@ -12,23 +12,9 @@ struct ExerciseView: View {
     @ObservedObject var vm: ExerciseViewModel
     
     var body: some View {
-        VStack {
-            // GIF (Exercise animation)
-            GifView(gifName: "testTrainingStatic") // Replace with your GIF file name
-                .disabled(true)
-                .frame(maxWidth: .infinity)
-                .aspectRatio(1.5, contentMode: .fit)
-                .overlay(alignment: .topTrailing) {
-                    Button {
-                        vm.isFavorite.toggle()
-                    } label: {
-                        Image(systemName: vm.isFavorite ? "heart.fill" : "heart")
-                            .foregroundStyle(vm.isFavorite ? .red : .secondary)
-                            .frame(maxWidth: 40, maxHeight: 40)
-                    }
-                }
-            .ignoresSafeArea()
-            ScrollView {
+        // GIF (Exercise animation)
+        StretchableScrollView {
+            VStack {
                 VStack(alignment: .leading) {
                     // Exercise Title
                     Text(vm.exercise.name)
@@ -61,10 +47,18 @@ struct ExerciseView: View {
                         .shadow(color: .gray.opacity(0.14), radius: 2)
                 }
             }
+            .background(Color(UIColor.systemGroupedBackground)
+                .ignoresSafeArea())
+            .clipShape(.rect(cornerRadii: RectangleCornerRadii(
+                topLeading: 25,
+                topTrailing: 25)))
         }
-        .background(Color(UIColor.systemGroupedBackground).ignoresSafeArea())
+        .background(Color(UIColor.systemGroupedBackground)
+            .ignoresSafeArea())
         .navigationTitle(vm.exercise.name)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(Color.white, for: .navigationBar)
+        .toolbarBackgroundVisibility(.visible, for: .navigationBar)
     }
 }
 
