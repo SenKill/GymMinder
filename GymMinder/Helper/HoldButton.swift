@@ -18,12 +18,18 @@ struct HoldButton: View {
     
     var body: some View {
         CircularTimerView(totalMs: holdTime, leftMs: $currentHoldTime, showLeftTime: false)
+            .overlay {
+                Text(labelText)
+                    .multilineTextAlignment(.center)
+                    .font(.footnote)
+                    .minimumScaleFactor(0.5)
+                    .padding()
+            }
             .onLongPressGesture(minimumDuration: holdTime, perform: {}, onPressingChanged: toggleTimer)
     }
     
-    func toggleTimer(_ isStartedTouching: Bool) {
-        if hasLongHolded { return }
-        if isStartedTouching {
+    func toggleTimer(_ didStartTouching: Bool) {
+        if didStartTouching {
             let generator = UIImpactFeedbackGenerator(style: .medium)
             generator.impactOccurred()
             self.timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
@@ -32,7 +38,6 @@ struct HoldButton: View {
                     self.timer?.invalidate()
                     self.timer = nil
                     self.playSuccess()
-                    self.hasLongHolded = true
                     onHoldingCompletion()
                 }
             }
@@ -51,6 +56,6 @@ struct HoldButton: View {
 }
 
 #Preview {
-    HoldButton(holdTime: 1, hasLongHolded: .constant(false), onHoldingCompletion: {})
+    HoldButton(holdTime: 1, labelText: "Test", onHoldingCompletion: {})
 }
 

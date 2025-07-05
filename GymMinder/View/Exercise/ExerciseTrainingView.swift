@@ -42,20 +42,8 @@ struct ExerciseTrainingView: View {
                 .disabled(!vm.hasBreak)
                 if (vm.hasBreak) {
                     CircularTimerView(totalMs: breakTimer.startingTime, leftMs: $breakTimer.leftTime)
-                        .font(.title3)
-                        .shadow(color: .gray.opacity(0.85), radius: 5)
                 } else {
-                    HoldButton(holdTime: 1, hasLongHolded: $vm.hasBreak, onHoldingCompletion: vm.completeSet)
-                        .font(.title3)
-                        .overlay {
-                            Text(vm.holdButtonText)
-                                .multilineTextAlignment(.center)
-                                .font(.footnote)
-                                .minimumScaleFactor(0.5)
-                                .padding()
-                        }
-                        .allowsHitTesting(vm.isSetButtonTappable)
-                        .shadow(color: .gray.opacity(0.85), radius: 5)
+                    HoldButton(holdTime: 1, labelText: vm.holdButtonText, onHoldingCompletion: vm.onHoldButton)
                 }
                 TimerSkipButton(buttonTitle: "arrow.clockwise") {
                     vm.timer.addSeconds(15)

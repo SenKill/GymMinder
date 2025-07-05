@@ -33,6 +33,7 @@ struct CircularTimerView: View {
             }
         }
         .padding()
+        .shadow(color: .gray.opacity(0.85), radius: 5)
     }
 }
 
