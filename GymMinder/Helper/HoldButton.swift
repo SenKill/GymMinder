@@ -10,7 +10,7 @@ import AVFoundation
 
 struct HoldButton: View {
     let holdTime: Double
-    @Binding var hasLongHolded: Bool
+    let labelText: String
     var onHoldingCompletion: () -> Void
     
     @State private var currentHoldTime: Double = 0.0

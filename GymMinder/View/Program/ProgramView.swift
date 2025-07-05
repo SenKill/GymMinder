@@ -80,14 +80,16 @@ struct ProgramView: View {
     }
     
     var body: some View {
-        NavigationView {
-            List(vm.exercises, id: \.id) { exercise in
-                // Persist data for all exercises
-                let exerciseVm = vm.getExerciseVm(with: exercise.id)
-                NavigationLink(destination: ExerciseView(vm: exerciseVm)) {
-                    ProgramRowView(exercise: exercise, isFinished: vm.isExerciseFinished(exercise))
+        NavigationStack(path: $vm.exercisePath) {
+            List(vm.exercises.indices, id: \.self) { idx in
+                NavigationLink(value: idx) {
+                    ProgramRowView(exercise: vm.exercises[idx], isFinished: vm.isExerciseFinished(with: idx))
                 }
             }
+            .navigationDestination(for: Int.self) { idx in
+                ExerciseView(vm: vm.exerciseViewModels[idx])
+            }
+            .navigationBarTitleDisplayMode(.large)
             .navigationTitle("Workout Program")
         }
         .alert(isPresented: $alertManager.isPresented) {

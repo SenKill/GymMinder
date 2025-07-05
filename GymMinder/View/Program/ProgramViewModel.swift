@@ -11,6 +11,7 @@ import SwiftUI
 // MARK: - Sample Data
 
 final class ProgramViewModel: ObservableObject {
+    @Published var exercisePath: [Int] = []
     // Hardcoded samples, load from core data later
     var exercises = [
         Exercise(name: "Push-ups", sets: 3, reps: 12, weight: "Bodyweight", breakTime: 60, imageName: "pushups", instructions: [
@@ -50,15 +51,21 @@ final class ProgramViewModel: ObservableObject {
         Exercise(name: "Bicep Curls", sets: 3, reps: 15, weight: "10 kg", breakTime: 45, imageName: "bicep_curls", instructions: [])
     ]
     
-    private var exerciseViewModels: [ExerciseViewModel]
+    var exerciseViewModels: [ExerciseViewModel]
     private var alertManager: AlertManager
     
     init(alertManager: AlertManager) {
         self.alertManager = alertManager
         self.exerciseViewModels = []
         // Setting up completions for each view model to:
-        self.exerciseViewModels = self.exercises.map {
-            let exVm = ExerciseViewModel(exercise: $0)
+        for i in 0 ..< exercises.count {
+            let exVm = ExerciseViewModel(exercise: exercises[i], exerciseIdx: i, exerciseCount: exercises.count) { [weak self] newPathIdx in
+                if let newPathIdx = newPathIdx {
+                    self?.exercisePath.append(newPathIdx)
+                } else {
+                    self?.exercisePath = []
+                }
+            }
             // To show alert even if user is not in the right exercise view
             exVm.onBreakFinish = { timer in
                 let alert = Alert(
@@ -67,17 +74,12 @@ final class ProgramViewModel: ObservableObject {
                     dismissButton: .default(Text("OK")))
                 alertManager.enqueue(alert)
             }
-            return exVm
+            exerciseViewModels.append(exVm)
         }
     }
     
-    func getExerciseVm(with id: UUID) -> ExerciseViewModel {
-        // Maybe fatal error in the future
-        return self.exerciseViewModels.first(where: { $0.exercise.id == id })!
-    }
-    
-    func isExerciseFinished(_ exercise: Exercise) -> Bool {
-        let exVm = getExerciseVm(with: exercise.id)
-        return exVm.completedSets >= exercise.sets
+    func isExerciseFinished(with idx: Int) -> Bool {
+        let exVm = exerciseViewModels[idx]
+        return exVm.completedSets >= exVm.exercise.sets
     }
 }

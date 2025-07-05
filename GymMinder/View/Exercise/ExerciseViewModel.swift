@@ -18,14 +18,17 @@ final class ExerciseViewModel: ObservableObject {
     @Published var showBreakAlert: Bool = false
     @Published var completedSets: Int = 0
     @Published var isTrainingAllowed: Bool = true
+    let exerciseCount: Int
+    let exerciseIdx: Int
+    let updateNavigationPath: ((Int?) -> Void)
     
     var onBreakFinish: ((BreakTimer) -> Void)?
-    var isSetButtonTappable: Bool {
-        return completedSets != exercise.sets && isTrainingAllowed
-    }
     var holdButtonText: String {
         if completedSets == exercise.sets {
-            return "You've finished!👏"
+            if exerciseIdx + 1 == exerciseCount {
+                return "You've done all exercises!🎉\nHold to go to home"
+            }
+            return "You've finished this exercise!👏\nHold to go to the next"
         }
         if isTrainingAllowed {
             return "Hold If Did Set💪"
@@ -35,16 +38,27 @@ final class ExerciseViewModel: ObservableObject {
     
     var timer: BreakTimer
     
-    init(exercise: Exercise) {
+    init(exercise: Exercise, exerciseIdx: Int, exerciseCount: Int, updatePath: @escaping (Int?) -> Void) {
         self.exercise = exercise
         self.timer = BreakTimer(exerciseId: exercise.id, exerciseName: exercise.name, totalTime: exercise.breakTime)
+        self.exerciseIdx = exerciseIdx
+        self.exerciseCount = exerciseCount
+        self.updateNavigationPath = updatePath
     }
     
     // MARK: - Functions
-    func completeSet() {
+    func onHoldButton() {
         if completedSets < exercise.sets {
             completedSets += 1
             startBreakTimer()
+        } else {
+            // Go to the next exercise
+            // Run a completion
+            if (exerciseIdx + 1) < exerciseCount {
+                self.updateNavigationPath(exerciseIdx+1)
+            } else if (exerciseIdx + 1) == exerciseCount {
+                self.updateNavigationPath(nil)
+            }
         }
     }
     

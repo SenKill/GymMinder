@@ -20,7 +20,6 @@ struct ExerciseView: View {
                     Text(vm.exercise.name)
                         .font(.title)
                         .bold()
-                    // Set Tracker
                     HStack {
                         Text("Weight:")
                             .font(.subheadline)
@@ -36,6 +35,7 @@ struct ExerciseView: View {
                     }
                     .pickerStyle(.segmented)
                     Divider()
+                    // Set tracker
                     if vm.showTrainingView {
                         ExerciseTrainingView(vm: vm)
                         Spacer()
@@ -59,6 +59,15 @@ struct ExerciseView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(Color.white, for: .navigationBar)
         .toolbarBackgroundVisibility(.visible, for: .navigationBar)
+        .toolbar {
+            ToolbarItem(placement: .navigation) {
+                Button {
+                    vm.updateNavigationPath(nil)
+                } label: {
+                    Image(systemName: "house.fill")
+                }
+            }
+        }
     }
 }
 
@@ -66,7 +75,6 @@ struct ExerciseView: View {
 #Preview {
     struct PreviewWrapper: View {
         private let exercise = Exercise(name: "Push-ups", sets: 3, reps: 12, weight: "Bodyweight", breakTime: 60, imageName: "pushups", instructions: [])
-        @State private var navPath = NavigationPath()
         
         var body: some View {
             ExerciseView(vm: ExerciseViewModel(exercise: exercise, exerciseIdx: 0, exerciseCount: 1, updatePath: { _ in }))
