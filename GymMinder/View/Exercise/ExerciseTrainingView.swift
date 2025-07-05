@@ -36,7 +36,7 @@ struct ExerciseTrainingView: View {
             }
             .padding(.top, 4)
             HStack(alignment: .bottom) {
-                TimerSkipButton(buttonTitle: "arrow.counterclockwise") {
+                TimerSkipButton(buttonTitle: "-15") {
                     vm.timer.addSeconds(-15)
                 }
                 .disabled(!vm.hasBreak)
@@ -45,20 +45,12 @@ struct ExerciseTrainingView: View {
                 } else {
                     HoldButton(holdTime: 1, labelText: vm.holdButtonText, onHoldingCompletion: vm.onHoldButton)
                 }
-                TimerSkipButton(buttonTitle: "arrow.clockwise") {
+                TimerSkipButton(buttonTitle: "+15") {
                     vm.timer.addSeconds(15)
                 }
                 .disabled(!vm.hasBreak)
             }
         }
-        Button {
-            print("Hi")
-        } label: {
-            Text("Go to next")
-                .frame(maxWidth: .infinity, maxHeight: 40)
-        }
-        .background(Color.green.opacity(0.7))
-        .clipShape(.buttonBorder)
     }
 }
 
@@ -70,14 +62,10 @@ struct TimerSkipButton: View {
         Button {
             onButtonTap()
         } label: {
-            Image(systemName: buttonTitle)
-                .font(.title)
-                .overlay {
-                    Text("15")
-                        .font(.caption2)
-                        .bold()
-                        .offset(y: 3)
-                }
+            Text(buttonTitle)
+                .font(.caption)
+                .bold()
+                .offset(y: 3)
         }
     }
 }
