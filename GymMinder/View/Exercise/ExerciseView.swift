@@ -64,6 +64,13 @@ struct ExerciseView: View {
 
 
 #Preview {
-    let exercise = Exercise(name: "Push-ups", sets: 3, reps: 12, weight: "Bodyweight", breakTime: 60, imageName: "pushups", instructions: [])
-    ExerciseView(vm: ExerciseViewModel(exercise: exercise))
+    struct PreviewWrapper: View {
+        private let exercise = Exercise(name: "Push-ups", sets: 3, reps: 12, weight: "Bodyweight", breakTime: 60, imageName: "pushups", instructions: [])
+        @State private var navPath = NavigationPath()
+        
+        var body: some View {
+            ExerciseView(vm: ExerciseViewModel(exercise: exercise, exerciseIdx: 0, exerciseCount: 1, updatePath: { _ in }))
+        }
+    }
+    return PreviewWrapper()
 }
