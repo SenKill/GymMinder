@@ -1,5 +1,5 @@
 //
-//  ConstructorDetailView.swift
+//  ConstructorView.swift
 //  GymMinder
 //
 //  Created by Serik Musaev on 05.07.2025.
@@ -24,9 +24,9 @@ enum ConstructorField: String, CaseIterable, Identifiable {
     }
 }
 
-struct ConstructorDetailView: View {
+struct ConstructorView: View {
     @Binding var isConstructorOpen: Bool
-    @StateObject var vm = ConstructorDetailViewModel()
+    @StateObject var vm = ConstructorViewModel()
     
     var body: some View {
         Form {
@@ -142,7 +142,7 @@ struct OptionalField: View {
 
 #Preview {
     NavigationStack {
-        ConstructorDetailView(isConstructorOpen: .constant(true))
+        ConstructorView(isConstructorOpen: .constant(true))
     }
 }
 

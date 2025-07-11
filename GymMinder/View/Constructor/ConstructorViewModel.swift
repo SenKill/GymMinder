@@ -1,5 +1,5 @@
 //
-//  ConstructorDetailViewModel.swift
+//  ConstructorViewModel.swift
 //  GymMinder
 //
 //  Created by Serik Musaev on 09.07.2025.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-final class ConstructorDetailViewModel: ObservableObject {
+final class ConstructorViewModel: ObservableObject {
     // MARK: - Published properties
     @Published var name = ""
     @Published var description = ""
