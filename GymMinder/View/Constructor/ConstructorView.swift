@@ -13,6 +13,7 @@ enum ConstructorField: String, CaseIterable, Identifiable {
     case weight = "Weight"
     case repeats = "Repeats"
     case sets = "Sets"
+    case breakTime = "Break in Between Sets"
     
     var unitName: String {
         switch self {
@@ -20,83 +21,92 @@ enum ConstructorField: String, CaseIterable, Identifiable {
             return "kg"
         case .repeats, .sets:
             return "times"
+        case .breakTime:
+            return "seconds"
         }
     }
 }
 
 struct ConstructorView: View {
     @Binding var isConstructorOpen: Bool
-    @StateObject var vm = ConstructorViewModel()
+    @ObservedObject var vm: ConstructorViewModel
+    let onSubmit: (Exercise) -> Void
     
     var body: some View {
-        Form {
-            Section {
-                TextField("Exercise name", text: $vm.name)
-                    .font(.title2)
-                Button(action: {
-                    vm.showImage.toggle()
-                }, label: {
-                    if !vm.showImage {
-                        Text("Add an image/GIF")
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(Color.orange)
-                            .foregroundStyle(Color.white)
-                    } else {
-                        Image("testTrainingStaticIm")
-                            .resizable()
-                            .aspectRatio(1, contentMode: .fit)
-                            .frame(maxWidth: .infinity)
+        NavigationStack {
+            Form {
+                Section {
+                    TextField("Exercise name", text: $vm.name)
+                        .font(.title2)
+                        .autocorrectionDisabled()
+                    Button(action: {
+                        vm.showImage.toggle()
+                    }, label: {
+                        if !vm.showImage {
+                            Text("Add an image/GIF")
+                                .padding()
+                                .frame(maxWidth: .infinity)
+                                .background(Color.orange)
+                                .foregroundStyle(Color.white)
+                        } else {
+                            Image("testTrainingStaticIm")
+                                .resizable()
+                                .aspectRatio(1, contentMode: .fit)
+                                .frame(maxWidth: .infinity)
+                        }
+                    })
+                    .border(.gray, width: 1)
+                    .clipShape(.rect(cornerRadius: 8))
+                }
+                Section(header: Label("Required", systemImage: "exclamationmark.circle.fill")) {
+                    
+                    
+                    Picker("Type", selection: $vm.exerciseType) {
+                        ForEach(Exercise.ExType.allCases) { type in
+                            Text(type.rawValue)
+                                .tag(type)
+                        }
                     }
-                })
-                .border(.gray, width: 1)
-                .clipShape(.rect(cornerRadius: 8))
-            }
-            Section(header: Label("Required", systemImage: "exclamationmark.circle.fill")) {
-                
-                
-                Picker("Type", selection: $vm.exerciseType) {
-                    ForEach(Exercise.ExType.allCases) { type in
-                        Text(type.rawValue)
-                            .tag(type)
+                    
+                    Picker("Equipment", selection: $vm.equipment) {
+                        ForEach(Exercise.Equipment.allCases) { equipment in
+                            Text(equipment.rawValue)
+                                .tag(equipment)
+                        }
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text("Instructions:")
+                        TextEditor(text: $vm.instructions)
+                            .textFieldStyle(.roundedBorder)
+                            .frame(minHeight: 40)
                     }
                 }
-                
-                Picker("Equipment", selection: $vm.equipment) {
-                    ForEach(Exercise.Equipment.allCases) { equipment in
-                        Text(equipment.rawValue)
-                            .tag(equipment)
+                Section(header: Label("Optional", systemImage: "arrow.triangle.2.circlepath")) {
+                    ForEach(ConstructorField.allCases) { field in
+                        OptionalField(field: field, text: getFieldText(for: field))
                     }
                 }
-                
-                VStack(alignment: .leading, spacing: 0) {
-                    Text("Instructions:")
-                    TextEditor(text: $vm.description)
-                        .frame(minHeight: 40)
-                }
+                .textFieldStyle(.roundedBorder)
             }
-            Section(header: Label("Optional", systemImage: "arrow.triangle.2.circlepath")) {
-                ForEach(ConstructorField.allCases) { field in
-                    OptionalField(field: field, text: getFieldText(for: field))
+            .navigationTitle(vm.name)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button {
+                        isConstructorOpen = false
+                        onSubmit(vm.prepareExercise())
+                    } label: {
+                        Text("Save")
+                    }
+                    .disabled(!vm.isInputDataValid())
                 }
-            }
-            .textFieldStyle(.roundedBorder)
-        }
-        .navigationTitle("Home")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .confirmationAction) {
-                Button {
-                    isConstructorOpen = false
-                } label: {
-                    Text("Save")
-                }
-            }
-            ToolbarItem(placement: .cancellationAction) {
-                Button {
-                    isConstructorOpen = false
-                } label: {
-                    Text("Cancel")
+                ToolbarItem(placement: .cancellationAction) {
+                    Button {
+                        isConstructorOpen = false
+                    } label: {
+                        Text("Cancel")
+                    }
                 }
             }
         }
@@ -110,6 +120,8 @@ struct ConstructorView: View {
             return $vm.sets
         case .repeats:
             return $vm.repeats
+        case .breakTime:
+            return $vm.breakTime
         }
     }
 }
@@ -126,13 +138,10 @@ struct OptionalField: View {
                 .foregroundStyle(.secondary)
             HStack {
                 TextField(field.rawValue, text: $text)
-                    .keyboardType(.numberPad)
-                    .onChange(of: text, { _, newValue in
-                        text = newValue.filter { $0.isNumber }
-                    })
+                    .keyboardType(field == .weight ? .decimalPad : .numberPad)
                     .textFieldStyle(.roundedBorder)
                 Text(field.unitName)
-                    .frame(width: 45, alignment: .leading)
+                    .frame(width: 60, alignment: .leading)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
@@ -141,8 +150,6 @@ struct OptionalField: View {
 }
 
 #Preview {
-    NavigationStack {
-        ConstructorView(isConstructorOpen: .constant(true))
-    }
+    ConstructorView(isConstructorOpen: .constant(true), vm: ConstructorViewModel(exercise: nil), onSubmit: {_ in})
 }
 
