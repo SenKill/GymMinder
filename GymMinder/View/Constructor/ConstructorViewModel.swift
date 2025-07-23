@@ -38,14 +38,14 @@ final class ConstructorViewModel: ObservableObject {
     func isInputDataValid() -> Bool {
         return !name.isEmpty && !instructions.isEmpty &&
                 weight.isDecimalNumber && repeats.isNumber &&
-                sets.isNumber && breakTime.isNumber
+                sets.isNumber && breakTime.isDecimalNumber
     }
     
     func prepareExercise() -> Exercise {
         // TODO: Add actual image adding
         let exercise = Exercise(
             name: name, imageName: "", equipment: equipment, exType: exerciseType, sets: Int(sets),
-            reps: Int(repeats), weight: Float(weight), breakTime: Int(breakTime), instructions: instructions)
+            reps: Int(repeats), weight: Float(weight), breakTime: Float(breakTime), instructions: instructions)
         return exercise
     }
 }

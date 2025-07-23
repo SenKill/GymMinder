@@ -138,7 +138,7 @@ struct OptionalField: View {
                 .foregroundStyle(.secondary)
             HStack {
                 TextField(field.rawValue, text: $text)
-                    .keyboardType(field == .weight ? .decimalPad : .numberPad)
+                    .keyboardType(.decimalPad)
                     .textFieldStyle(.roundedBorder)
                 Text(field.unitName)
                     .frame(width: 60, alignment: .leading)
