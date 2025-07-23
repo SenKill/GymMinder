@@ -10,7 +10,7 @@ import AVFoundation
 
 final class ExerciseViewModel: ObservableObject {
     // MARK: - Properties
-    let exercise: Exercise
+    let exercise: ExerciseOverview
     
     @Published var isFavorite: Bool = false
     @Published var showTrainingView: Bool = true
@@ -38,9 +38,9 @@ final class ExerciseViewModel: ObservableObject {
     
     var timer: BreakTimer
     
-    init(exercise: Exercise, exerciseIdx: Int, exerciseCount: Int, updatePath: @escaping (Int?) -> Void) {
+    init(exercise: ExerciseOverview, exerciseIdx: Int, exerciseCount: Int, updatePath: @escaping (Int?) -> Void) {
         self.exercise = exercise
-        self.timer = BreakTimer(exerciseId: exercise.id, exerciseName: exercise.name, totalTime: exercise.breakTime)
+        self.timer = BreakTimer(exerciseName: exercise.name, totalTime: exercise.breakTime)
         self.exerciseIdx = exerciseIdx
         self.exerciseCount = exerciseCount
         self.updateNavigationPath = updatePath

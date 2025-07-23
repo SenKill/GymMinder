@@ -40,10 +40,12 @@ struct ExerciseView: View {
                         ExerciseTrainingView(vm: vm)
                         Spacer()
                     }
-                } // VStack
+                }
                 .padding(.all)
                 if !vm.showTrainingView {
-                    ExerciseInstructionsView(instructions: vm.exercise.instructions)
+                    Text(vm.exercise.instructions)
+                        .padding()
+                        .background(Color.white)
                         .shadow(color: .gray.opacity(0.14), radius: 2)
                 }
             }
@@ -74,7 +76,11 @@ struct ExerciseView: View {
 
 #Preview {
     struct PreviewWrapper: View {
-        private let exercise = Exercise(name: "Push-ups", sets: 3, reps: 12, weight: "Bodyweight", breakTime: 60, imageName: "pushups", instructions: [])
+        private let exercise = ExerciseOverview(
+            name: "Push-ups", imageName: "pushups",
+            equipment: Exercise.Equipment.none.rawValue,
+            exType: Exercise.ExType.bodyweight.rawValue,
+            instructions: "", weight: "Bodyweight", sets: 3, reps: 12, breakTime: 60)
         
         var body: some View {
             ExerciseView(vm: ExerciseViewModel(exercise: exercise, exerciseIdx: 0, exerciseCount: 1, updatePath: { _ in }))
