@@ -7,60 +7,48 @@
 
 import SwiftUI
 
-struct ExerciseListRowView: View {
-    let exercise: Exercise
-    
-    var body: some View {
-        HStack(alignment: .top, spacing: 16) {
-            // TODO: Add real images
-            Image("testTrainingStaticIm")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 65, height: 65)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-                .overlay(
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.gray.opacity(0.5), lineWidth: 1)
-                    }
-                )
-            VStack(alignment: .leading) {
-                Text(exercise.name)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .font(.headline)
-                Group {
-                    Text(exercise.exType.rawValue)
-                    if exercise.equipment != .none {
-                        Text(exercise.equipment.rawValue)
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .font(.subheadline)
-            }
-        }
-        .contentShape(Rectangle())
-    }
-}
-
 struct ExerciseListView: View {
     @StateObject var vm = ExerciseListViewModel()
+    @Binding var isExerciseListOpened: Bool
+    let onAddingExercises: (Set<Exercise>) -> Void
     
     var body: some View {
         NavigationStack {
-            List($vm.exercises, editActions: .delete) { exercise in
-                ExerciseListRowView(exercise: exercise.wrappedValue)
+            List {
+                ForEach($vm.exercises) { exercise in
+                    ExerciseListRowView(
+                        exercise: exercise,
+                        isSelected: vm.selectedExercises.contains( exercise.wrappedValue)
+                    )
                     .onTapGesture {
-                        vm.selectedExercise = exercise.wrappedValue
-                        vm.isConstructorPresent = true
+                        if vm.editMode {
+                            vm.editingExercise = exercise.wrappedValue
+                            vm.isConstructorPresent = true
+                        } else {
+                            vm.didSelectExercise(exercise.wrappedValue)
+                        }
                     }
+                }
+                .onDelete(perform: vm.deleteExercise)
             }
             .sheet(isPresented: $vm.isConstructorPresent) {
-                ConstructorView(isConstructorOpen: $vm.isConstructorPresent, vm: ConstructorViewModel(exercise: vm.selectedExercise), onSubmit: vm.saveNewExercise)
+                ConstructorView(isConstructorOpen: $vm.isConstructorPresent, vm: ConstructorViewModel(exercise: vm.editingExercise), onSubmit: vm.saveNewExercise)
             }
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
+                    Button("Save") {
+                        onAddingExercises(vm.selectedExercises)
+                        isExerciseListOpened = false
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(vm.editMode ? "Select" : "Edit") {
+                        vm.editMode.toggle()
+                    }
+                }
+                ToolbarItem(placement: .topBarLeading) {
                     Button {
-                        vm.selectedExercise = nil
+                        vm.editingExercise = nil
                         vm.isConstructorPresent = true
                     } label: {
                         Image(systemName: "plus")
@@ -73,5 +61,5 @@ struct ExerciseListView: View {
 }
 
 #Preview {
-    ExerciseListView()
+    ExerciseListView(isExerciseListOpened: .constant(true), onAddingExercises: { _ in })
 }

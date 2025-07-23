@@ -9,29 +9,38 @@ import SwiftUI
 
 final class ExerciseListViewModel: ObservableObject {
     @Published var isConstructorPresent: Bool = false
-    @Published var exercises: [Exercise] = [
-        Exercise(name: "Push-ups", imageName: "testAnimation", equipment: .none, exType: .bodyweight, sets: 4, reps: 10, weight: nil, breakTime: 60, instructions:
-            """
-            Place your hands shoulder-width apart on the floor. \n
-            Extend your legs straight behind you, with your toes touching the ground. \n
-            Keep your body in a straight line from head to heels. Engage your core and glutes. \n
-            Slowly lower your body by bending your elbows until your chest is just above the floor. \n
-            Press through your palms to push your body back up to the starting position. \n
-            Repeat for the required reps.
-            """
-        ),
-        Exercise(name: "Squats", imageName: "testAnimation", equipment: .none, exType: .bodyweight, sets: 4, reps: 10, weight: 50, breakTime: 90, instructions: ""),
-        Exercise(name: "Deadlifts", imageName: "testAnimation", equipment: .none, exType: .bodyweight,  sets: 3, reps: 8, weight: 80, breakTime: 120, instructions: ""),
-        Exercise(name: "Bicep Curls", imageName: "testAnimation", equipment: .none, exType: .bodyweight, sets: 3, reps: 15, weight: 10, breakTime: 45, instructions: "")
-    ]
-    @Published var selectedExercise: Exercise? = nil
+    @Published var editingExercise: Exercise? = nil
+    @Published var selectedExercises: Set<Exercise> = []
+    @Published var editMode: Bool = false
+    private let coreDataStack: CoreDataStack
+    @Published var exercises: [Exercise]
+    
+    init() {
+        coreDataStack = CoreDataStack()
+        exercises = coreDataStack.getExercises()
+    }
     
     func saveNewExercise(_ exercise: Exercise) {
         // Check if exists
         if let existingIdx = exercises.firstIndex(where: {$0.name == exercise.name}) {
-            exercises[existingIdx] = exercise
+            exercises[existingIdx].copy(src: exercise)
+            CoreDataStack.exercises[existingIdx].copy(src: exercise)
         } else {
             exercises.append(exercise)
+            coreDataStack.addExercise(exercise)
         }
+    }
+    
+    func didSelectExercise(_ exercise: Exercise) {
+        if selectedExercises.contains(exercise) {
+            selectedExercises.remove(exercise)
+        } else {
+            selectedExercises.insert(exercise)
+        }
+    }
+    
+    func deleteExercise(at offset: IndexSet) {
+        CoreDataStack.exercises.remove(atOffsets: offset)
+        exercises.remove(atOffsets: offset)
     }
 }
