@@ -9,6 +9,14 @@ import SwiftUI
 
 @main
 struct GymMinderApp: App {
+    
+    init() {
+        if !UserDefaults.standard.hasLaunchedBefore {
+            CoreDataStack.shared.preloadDefaultData()
+            UserDefaults.standard.hasLaunchedBefore = true
+        }
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
