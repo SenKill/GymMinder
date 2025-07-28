@@ -30,7 +30,7 @@ enum ConstructorField: String, CaseIterable, Identifiable {
 struct ConstructorView: View {
     @Binding var isConstructorOpen: Bool
     @ObservedObject var vm: ConstructorViewModel
-    let onSubmit: (Exercise) -> Void
+    let onSubmit: (Exercise) -> Bool
     
     var body: some View {
         NavigationStack {
@@ -59,17 +59,15 @@ struct ConstructorView: View {
                     .clipShape(.rect(cornerRadius: 8))
                 }
                 Section(header: Label("Required", systemImage: "exclamationmark.circle.fill")) {
-                    
-                    
                     Picker("Type", selection: $vm.exerciseType) {
-                        ForEach(Exercise.ExType.allCases) { type in
+                        ForEach(ExType.allCases) { type in
                             Text(type.rawValue)
                                 .tag(type)
                         }
                     }
                     
                     Picker("Equipment", selection: $vm.equipment) {
-                        ForEach(Exercise.Equipment.allCases) { equipment in
+                        ForEach(Equipment.allCases) { equipment in
                             Text(equipment.rawValue)
                                 .tag(equipment)
                         }
@@ -94,8 +92,10 @@ struct ConstructorView: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button {
-                        isConstructorOpen = false
-                        onSubmit(vm.prepareExercise())
+                        // New or changed exercise is OK
+                        if let newExercise = vm.prepareExercise(), onSubmit(newExercise) {
+                            isConstructorOpen = false
+                        }
                     } label: {
                         Text("Save")
                     }
@@ -150,6 +150,6 @@ struct OptionalField: View {
 }
 
 #Preview {
-    ConstructorView(isConstructorOpen: .constant(true), vm: ConstructorViewModel(exercise: nil), onSubmit: {_ in})
+    ConstructorView(isConstructorOpen: .constant(true), vm: ConstructorViewModel(exercise: nil), onSubmit: {_ in true})
 }
 
