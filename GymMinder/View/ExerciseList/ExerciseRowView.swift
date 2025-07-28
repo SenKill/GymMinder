@@ -27,17 +27,19 @@ struct ExerciseListRowView: View {
                         }
                     )
                 VStack(alignment: .leading) {
-                    Text(exercise.name)
+                    Text(exercise.name!)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .font(.headline)
                     Group {
-                        Text(exercise.exType.rawValue)
-                        if exercise.equipment != .none {
-                            Text(exercise.equipment.rawValue)
+                        if let exType = exercise.exType {
+                            Text(exType)
+                        }
+                        if let equipment = exercise.equipment {
+                            Text(equipment)
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .font(.subheadline)
+                    .font(.footnote)
                 }
             }
             Spacer()

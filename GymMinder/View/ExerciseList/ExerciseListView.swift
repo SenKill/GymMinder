@@ -21,12 +21,7 @@ struct ExerciseListView: View {
                         isSelected: vm.selectedExercises.contains( exercise.wrappedValue)
                     )
                     .onTapGesture {
-                        if vm.editMode {
-                            vm.editingExercise = exercise.wrappedValue
-                            vm.isConstructorPresent = true
-                        } else {
-                            vm.didSelectExercise(exercise.wrappedValue)
-                        }
+                        vm.handleExerciseTap(exercise.wrappedValue)
                     }
                 }
                 .onDelete(perform: vm.deleteExercise)

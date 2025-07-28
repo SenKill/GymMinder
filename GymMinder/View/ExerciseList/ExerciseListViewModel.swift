@@ -12,35 +12,57 @@ final class ExerciseListViewModel: ObservableObject {
     @Published var editingExercise: Exercise? = nil
     @Published var selectedExercises: Set<Exercise> = []
     @Published var editMode: Bool = false
+    @Published var exercises: [Exercise] = []
     private let coreDataStack: CoreDataStack
-    @Published var exercises: [Exercise]
     
     init() {
-        coreDataStack = CoreDataStack()
+        coreDataStack = CoreDataStack.shared
         exercises = coreDataStack.getExercises()
     }
     
-    func saveNewExercise(_ exercise: Exercise) {
-        // Check if exists
-        if let existingIdx = exercises.firstIndex(where: {$0.name == exercise.name}) {
-            exercises[existingIdx].copy(src: exercise)
-            CoreDataStack.exercises[existingIdx].copy(src: exercise)
+    func saveNewExercise(_ newExercise: Exercise) -> Bool {
+        // Check if new/edited exercise is valid
+        // Check if it has unique name
+        // id = name, so I am using this approach, name must be unique
+        var foundSameName = false
+        for exercise in exercises {
+            if exercise.name == newExercise.name {
+                if foundSameName {
+                    return false
+                }
+                foundSameName = true
+            }
+        }
+        
+        if editingExercise == nil {
+            exercises.append(newExercise)
+        }
+        return true
+    }
+    
+    func handleExerciseTap(_ exercise: Exercise) {
+        if editMode {
+            editingExercise = exercise
+            isConstructorPresent = true
         } else {
-            exercises.append(exercise)
-            coreDataStack.addExercise(exercise)
+            if selectedExercises.contains(exercise) {
+                selectedExercises.remove(exercise)
+            } else {
+                selectedExercises.insert(exercise)
+            }
         }
     }
     
-    func didSelectExercise(_ exercise: Exercise) {
-        if selectedExercises.contains(exercise) {
-            selectedExercises.remove(exercise)
-        } else {
-            selectedExercises.insert(exercise)
+    func deleteExercise(at indexSet: IndexSet) {
+        for index in indexSet {
+            coreDataStack.context.delete(exercises[index])
         }
-    }
-    
-    func deleteExercise(at offset: IndexSet) {
-        CoreDataStack.exercises.remove(atOffsets: offset)
-        exercises.remove(atOffsets: offset)
+        
+        do {
+            try coreDataStack.context.save()
+            exercises.remove(atOffsets: indexSet)
+        } catch {
+            print("CoreData: Error saving after delete: \(error)")
+        }
     }
 }
