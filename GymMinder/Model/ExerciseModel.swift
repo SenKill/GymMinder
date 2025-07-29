@@ -32,14 +32,59 @@ enum ExType: String, Identifiable, CaseIterable {
 }
 
 struct ExerciseOverview: Identifiable {
-    let id: UUID = UUID()
+    let id: UUID
     let name: String
     let imageName: String
     let equipment: Equipment
     let exType: ExType
     let instructions: String
     var weight: Float?
-    var breakTime: Float?
-    var sets: Int?
-    var reps: Int?
+    var breakTime: Int?
+    var sets: Int
+    var reps: Int
+    var isWeightValid: Bool
+    var isBreakTimeValid: Bool
+    
+    init (name: String, imageName: String, equipment: Equipment, exType: ExType, instructions: String, weight: Float?, breakTime: Int?, sets: Int, reps: Int) {
+        self.id = UUID()
+        self.name = name
+        self.imageName = imageName
+        self.equipment = equipment
+        self.exType = exType
+        self.instructions = instructions
+        self.weight = weight
+        self.breakTime = breakTime
+        self.sets = sets
+        self.reps = reps
+        self.isWeightValid = true
+        self.isBreakTimeValid = true
+    }
+    
+    init(src: Exercise) {
+        self.id = UUID()
+        self.name = src.name!
+        self.imageName = src.imageName!
+        self.equipment = .init(rawValue: src.equipment!)!
+        self.exType = .init(rawValue: src.exType!)!
+        self.instructions = src.instructions!
+        
+        if let weight = src.weight {
+            self.weight = Float(truncating: weight)
+        }
+        if let breakTime = src.breakTime {
+            self.breakTime = Int(truncating: breakTime)
+        }
+        if let sets = src.sets {
+            self.sets = Int(truncating: sets)
+        } else {
+            self.sets = 0
+        }
+        if let reps = src.reps {
+            self.reps = Int(truncating: reps)
+        } else {
+            self.reps = 0
+        }
+        self.isWeightValid = self.weight != nil
+        self.isBreakTimeValid = self.breakTime != nil
+    }
 }
