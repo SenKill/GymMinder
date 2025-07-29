@@ -9,16 +9,32 @@ import SwiftUI
 
 final class PlannerListViewModel: ObservableObject {
     // MARK: - Published properties
-    @Published var exercises: [Exercise] = []
+    @Published var exercises: [ExerciseOverview] = []
     @Published var isExerciseListOpened: Bool = false
+    @Published var hasStartedTraining: Bool = false
     @Published var programName: String = ""
+    
+    var isPlanReady: Bool {
+        if exercises.isEmpty || programName.isEmpty { return false }
+        for ex in exercises {
+            if !ex.isWeightValid || !ex.isBreakTimeValid || ex.sets == 0 || ex.reps == 0 {
+                return false
+            }
+        }
+        return true
+    }
     
     func addExercises(_ newExercises: Set<Exercise>) {
         newExercises.forEach { ex in
-            let copyEx = Exercise(name: ex.name, imageName: ex.imageName, equipment: ex.equipment, exType: ex.exType, sets: ex.sets, reps: ex.reps, weight: ex.weight, breakTime: ex.breakTime, instructions: ex.instructions)
-            exercises.append(copyEx)
+            exercises.append(ExerciseOverview(src: ex))
         }
     }
     
-    // TODO: Add future logic for starting exercising programs (transition to program module)
+    func deleteExercises(indexSet: IndexSet) {
+        exercises.remove(atOffsets: indexSet)
+    }
+    
+    func moveExercises(from: IndexSet, to: Int) {
+        exercises.move(fromOffsets: from, toOffset: to)
+    }
 }
